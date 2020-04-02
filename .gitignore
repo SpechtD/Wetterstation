@@ -1,2 +1,11 @@
 # Ignore vscode stuff
 .vscode/
+# Ignore compile stuff
+*.lst
+*.obj
+*.AOF
+*.BIN
+*.ctx
+*.dbi
+*.M51
+*.xdb
