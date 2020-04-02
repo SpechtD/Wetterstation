@@ -1,0 +1,517 @@
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE  1
+
+QCW(0x00002F32)
+
+DOS RC51 COMPILER V03.08.10.309, COMPILATION OF MODULE WINDRICHTUNG
+OBJECT MODULE PLACED IN M:\Code\Windrichtung.obj
+COMPILER INVOKED BY: QUIET GENERATEDEPFILE OJ(M:\Code\Windrichtung.obj) PIN(C:\R
+            -aisonance\Ride\Inc;C:\Raisonance\Ride\Inc\51) PIN(C:\Raisonance\Rid
+            -e\\inc\51\SiLabs) NOAM CD PR(M:\Code\Windrichtung.lst) FP(NOFLOAT) 
+            -IP NOIS UNSIGNEDCHAR ET(CHAR) PR PL(60) PW(80) OE(1) OT(7,SPEED) RB
+            -(0) MAXERR(25) MAXWAR(25) SM MOD517(NODP8,NOAU) 
+
+stmt level    source
+   1          /*
+   2          ;Name:      David Specht
+   3          ;Datum:     27.02.2020
+   4          ;Aufgabe:   Ermittlung der Windrichtung mit dem W132 von Ventus
+   5          ;Controller:C8051F340
+   6          */
+   7          
+   8          #include <stdio.h>									// für sprinf											
+   9          #include <C_8051F340.h>
+  10          #include <Einstellungen.h>
+  11          #include <lcd.c>
+  12          
+  13          #define NORD 0b00000001 
+  14          #define OST 0b00000010 
+  15          #define SUD 0b00000100 
+  16          #define WEST 0b00001000
+  17          
+  18          #define NORD_OST 0b00000011 
+  19          #define SUD_OST 0b00000110 
+  20          #define SUD_WEST 0b00001100 
+  21          #define NORD_WEST 0b00001001 
+  22          
+  23          unsigned char buf [20];
+  24          unsigned char wind;
+  25          
+  26          void main (void){
+  27   1          Grundeinstellungen();	
+  28   1          initlcd ();						//	Initialisierung LCD-Display an P3
+  29   1       	loeschenlcd ();				    //	Anzeige löschen	
+  30   1          wind = P0 & 0b00001111;
+  31   1          
+  32   1      	while (1){
+  33   2              if(!(wind == (P0 & 0b00001111))){
+  34   3                  loeschenlcd();
+  35   3                  sprintf(buf, "Windrichtung:");
+  36   3                  textlcd(buf, 1);
+  37   3                  wind = P0 & 0b00001111;
+  38   3                  switch(wind){
+  39   4                      case NORD: sprintf(buf, "Nord"); break;
+  40   4                      case SUD: sprintf(buf, "Sued"); break;
+  41   4                      case OST: sprintf(buf, "Ost"); break;
+  42   4                      case WEST: sprintf(buf, "West"); break;
+  43   4                      case NORD_WEST: sprintf(buf, "Nord West"); break;
+  44   4                      case NORD_OST: sprintf(buf, "Nord Ost"); break;
+  45   4                      case SUD_WEST: sprintf(buf, "Sued West"); break;
+  46   4                      case SUD_OST: sprintf(buf, "Sued Ost"); break;
+  47   4                      default: break;
+  48   4                  }    
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE  6
+
+  49   3                  textlcd(buf, 2);
+  50   3                  
+  51   3              }
+  52   2           }
+  53   1      }
+  54          
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE 10
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+            ; FUNCTION Grundeinstellungen (BEGIN)
+                                           ; SOURCE LINE # 9 
+0000 75B283         MOV    OSCICN,#083H
+                                           ; SOURCE LINE # 11 
+0003 75D900         MOV    PCA0MD,#000H
+                                           ; SOURCE LINE # 17 
+0006 75A4FF         MOV    P0MDOUT,#0FFH
+                                           ; SOURCE LINE # 18 
+0009 75A5FF         MOV    P1MDOUT,#0FFH
+                                           ; SOURCE LINE # 19 
+000C 75A6FF         MOV    P2MDOUT,#0FFH
+                                           ; SOURCE LINE # 20 
+000F 75A7FF         MOV    P3MDOUT,#0FFH
+                                           ; SOURCE LINE # 21 
+0012 75AEFF         MOV    P4MDOUT,#0FFH
+                                           ; SOURCE LINE # 24 
+0015 75E240         MOV    XBR1,#040H
+                                           ; SOURCE LINE # 10 
+0018 22             RET    
+
+            ; FUNCTION Grundeinstellungen (END)
+
+            ; FUNCTION _warte100u (BEGIN)
+              ; Register R6R7 is assigned to parameter anzahl
+              ; R2R3 is assigned to z1
+              ; R4R5 is assigned to z2
+                                           ; SOURCE LINE # 37 
+0000 8E04           MOV    AR4,R6
+0002 8F05           MOV    AR5,R7
+0004         ?FOR2:
+0004 EC             MOV    A,R4
+0005 4D             ORL    A,R5
+0006 6016           JZ     ?NXT4
+                                           ; SOURCE LINE # 39 
+0008 E4             CLR    A
+0009 FA             MOV    R2,A
+000A 7B03           MOV    R3,#003H
+000C         ?FOR3:
+000C EA             MOV    A,R2
+000D 4B             ORL    A,R3
+000E 6007           JZ     ?NXT5
+0010 EB             MOV    A,R3
+0011 1B             DEC    R3
+0012 70F8           JNZ    ?FOR3
+0014 1A             DEC    R2
+0015 80F5           SJMP   ?FOR3
+0017         ?NXT5:
+                                           ; SOURCE LINE # 37 
+0017 ED             MOV    A,R5
+0018 1D             DEC    R5
+0019 70E9           JNZ    ?FOR2
+001B 1C             DEC    R4
+001C 80E6           SJMP   ?FOR2
+001E         ?NXT4:
+                                           ; SOURCE LINE # 41 
+001E 22             RET    
+
+            ; FUNCTION _warte100u (END)
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE  2
+
+
+            ; FUNCTION _LCDbefehl (BEGIN)
+              ; Register R7 is assigned to parameter befehl
+              ; R6 is assigned to a1
+                                           ; SOURCE LINE # 51 
+0000 75F004         MOV    B,#004H
+0003 EF             MOV    A,R7
+0004         ?LAB10:
+0004 23             RL     A
+0005 D5F0FC         DJNZ   B,?LAB10
+                                           ; SOURCE LINE # 52 
+0008 540F           ANL    A,#00FH
+000A 4410           ORL    A,#010H
+                                           ; SOURCE LINE # 53 
+000C F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 54 
+000E E4             CLR    A
+000F F5B0           MOV    P3,A
+              ; R6 is assigned to a1
+                                           ; SOURCE LINE # 56 
+0011 EF             MOV    A,R7
+0012 540F           ANL    A,#00FH
+0014 4410           ORL    A,#010H
+                                           ; SOURCE LINE # 57 
+0016 F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 58 
+0018 E4             CLR    A
+0019 F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 61 
+001B FE             MOV    R6,A
+001C 7FC8           MOV    R7,#0C8H
+001E 020000  R      LJMP   _warte100u
+
+            ; FUNCTION _LCDbefehl (END)
+
+            ; FUNCTION initlcd (BEGIN)
+                                           ; SOURCE LINE # 99 
+0000 75B013         MOV    P3,#013H
+                                           ; SOURCE LINE # 100 
+0003 75B003         MOV    P3,#003H
+                                           ; SOURCE LINE # 101 
+0006 E4             CLR    A
+0007 FE             MOV    R6,A
+0008 7FC8           MOV    R7,#0C8H
+000A 120000  R      LCALL  _warte100u
+                                           ; SOURCE LINE # 102 
+000D 75B013         MOV    P3,#013H
+                                           ; SOURCE LINE # 103 
+0010 75B003         MOV    P3,#003H
+                                           ; SOURCE LINE # 104 
+0013 120000  R      LCALL  _warte100u
+                                           ; SOURCE LINE # 105 
+0016 75B013         MOV    P3,#013H
+                                           ; SOURCE LINE # 106 
+0019 75B003         MOV    P3,#003H
+                                           ; SOURCE LINE # 107 
+001C 120000  R      LCALL  _warte100u
+                                           ; SOURCE LINE # 108 
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE  3
+
+001F 75B012         MOV    P3,#012H
+                                           ; SOURCE LINE # 109 
+0022 75B002         MOV    P3,#002H
+                                           ; SOURCE LINE # 110 
+0025 120000  R      LCALL  _warte100u
+                                           ; SOURCE LINE # 111 
+0028 7F28           MOV    R7,#028H
+002A 120000  R      LCALL  _LCDbefehl
+                                           ; SOURCE LINE # 112 
+002D 7F0C           MOV    R7,#00CH
+002F 120000  R      LCALL  _LCDbefehl
+                                           ; SOURCE LINE # 113 
+0032 7F06           MOV    R7,#006H
+0034 020000  R      LJMP   _LCDbefehl
+
+            ; FUNCTION initlcd (END)
+
+            ; FUNCTION loeschenlcd (BEGIN)
+                                           ; SOURCE LINE # 120 
+0000 7F01           MOV    R7,#001H
+0002 020000  R      LJMP   _LCDbefehl
+
+            ; FUNCTION loeschenlcd (END)
+
+            ; FUNCTION _charlcd (BEGIN)
+              ; Register R7 is assigned to parameter zeichen
+              ; R6 is assigned to a1
+                                           ; SOURCE LINE # 131 
+0000 75F004         MOV    B,#004H
+0003 EF             MOV    A,R7
+0004         ?LAB18:
+0004 23             RL     A
+0005 D5F0FC         DJNZ   B,?LAB18
+                                           ; SOURCE LINE # 133 
+0008 540F           ANL    A,#00FH
+000A 4490           ORL    A,#090H
+                                           ; SOURCE LINE # 134 
+000C F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 135 
+000E 5480           ANL    A,#080H
+0010 F5B0           MOV    P3,A
+              ; R6 is assigned to a1
+                                           ; SOURCE LINE # 137 
+0012 EF             MOV    A,R7
+0013 540F           ANL    A,#00FH
+0015 4490           ORL    A,#090H
+                                           ; SOURCE LINE # 138 
+0017 F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 139 
+0019 5480           ANL    A,#080H
+001B F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 142 
+001D 7E00           MOV    R6,#000H
+001F 7FC8           MOV    R7,#0C8H
+0021 020000  R      LJMP   _warte100u
+
+            ; FUNCTION _charlcd (END)
+
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE  4
+
+            ; FUNCTION _cursorpos (BEGIN)
+              ; Register R7 is assigned to parameter position
+                                           ; SOURCE LINE # 167 
+0000 EF             MOV    A,R7
+0001 4480           ORL    A,#080H
+0003 FF             MOV    R7,A
+0004 020000  R      LJMP   _LCDbefehl
+
+            ; FUNCTION _cursorpos (END)
+
+            ; FUNCTION cursorhome (BEGIN)
+                                           ; SOURCE LINE # 173 
+0000 7F02           MOV    R7,#002H
+0002 020000  R      LJMP   _LCDbefehl
+
+            ; FUNCTION cursorhome (END)
+
+            ; FUNCTION _textlcd (BEGIN)
+                                           ; SOURCE LINE # 178 
+0000 8B00    R      MOV    text,R3
+0002 8A00    R      MOV    text+01H,R2
+0004 8900    R      MOV    text+02H,R1
+0006 8D00    R      MOV    zeile,R5
+                                           ; SOURCE LINE # 180 
+0008 BD0105         CJNE   R5,#001H,?NXT13
+000B E4             CLR    A
+000C FF             MOV    R7,A
+000D 120000  R      LCALL  _cursorpos
+0010         ?NXT13:
+                                           ; SOURCE LINE # 181 
+0010 E500    R      MOV    A,zeile
+0012 B40205         CJNE   A,#002H,?NXT14
+0015 7F40           MOV    R7,#040H
+0017 120000  R      LCALL  _cursorpos
+001A         ?NXT14:
+                                           ; SOURCE LINE # 182 
+001A E500    R      MOV    A,zeile
+001C B40305         CJNE   A,#003H,?NXT15
+001F 7F10           MOV    R7,#010H
+0021 120000  R      LCALL  _cursorpos
+0024         ?NXT15:
+                                           ; SOURCE LINE # 183 
+0024 E500    R      MOV    A,zeile
+0026 B40405         CJNE   A,#004H,?WHILE1
+0029 7F50           MOV    R7,#050H
+002B 120000  R      LCALL  _cursorpos
+002E         ?WHILE1:
+                                           ; SOURCE LINE # 184 
+002E AB00    R      MOV    R3,text
+0030 AA00    R      MOV    R2,text+01H
+0032 A900    R      MOV    R1,text+02H
+0034 120000  R      LCALL  IPGN1?C
+0037 601E           JZ     ?NXT17
+                                           ; SOURCE LINE # 186 
+0039 AB00    R      MOV    R3,text
+003B AA00    R      MOV    R2,text+01H
+003D A900    R      MOV    R1,text+02H
+003F 0500    R      INC    text+02H
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE  5
+
+0041 E500    R      MOV    A,text+02H
+0043 7002           JNZ    ?LAB26
+0045 0500    R      INC    text+01H
+0047         ?LAB26:
+0047 120000  R      LCALL  IPGN1?C
+004A FF             MOV    R7,A
+004B 120000  R      LCALL  _charlcd
+                                           ; SOURCE LINE # 187 
+004E E4             CLR    A
+004F FE             MOV    R6,A
+0050 7FC8           MOV    R7,#0C8H
+0052 120000  R      LCALL  _warte100u
+0055 80D7           SJMP   ?WHILE1
+0057         ?NXT17:
+                                           ; SOURCE LINE # 190 
+0057 22             RET    
+
+            ; FUNCTION _textlcd (END)
+
+            ; FUNCTION main (BEGIN)
+                                           ; SOURCE LINE # 27 
+0000 120000  R      LCALL  Grundeinstellungen
+                                           ; SOURCE LINE # 28 
+0003 120000  R      LCALL  initlcd
+                                           ; SOURCE LINE # 29 
+0006 120000  R      LCALL  loeschenlcd
+                                           ; SOURCE LINE # 30 
+0009 E580           MOV    A,P0
+000B 540F           ANL    A,#00FH
+000D F500    R      MOV    wind,A
+000F         ?WHILE3:
+                                           ; SOURCE LINE # 33 
+000F E580           MOV    A,P0
+0011 540F           ANL    A,#00FH
+0013 6500    R      XRL    A,wind
+0015 60F8           JZ     ?WHILE3
+                                           ; SOURCE LINE # 34 
+0017 120000  R      LCALL  loeschenlcd
+                                           ; SOURCE LINE # 35 
+001A 7B01           MOV    R3,#001H
+001C 7900    R      MOV    R1,#buf
+001E E4             CLR    A
+001F FA             MOV    R2,A
+0020 7D05           MOV    R5,#005H
+0022 7C00    R      MOV    R4,#HIGH(?STR?WINDRICHTUNG?BASE)
+0024 7800    R      MOV    R0,#LOW(?STR?WINDRICHTUNG?BASE)
+0026 120000  R      LCALL  ?sprintf
+                                           ; SOURCE LINE # 36 
+0029 7B01           MOV    R3,#001H
+002B 7900    R      MOV    R1,#buf
+002D E4             CLR    A
+002E FA             MOV    R2,A
+002F 7D01           MOV    R5,#001H
+0031 120000  R      LCALL  _textlcd
+                                           ; SOURCE LINE # 37 
+0034 E580           MOV    A,P0
+0036 540F           ANL    A,#00FH
+0038 F500    R      MOV    wind,A
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE  7
+
+                                           ; SOURCE LINE # 38 
+003A B40603         CJNE   A,#006H,?LAB36
+003D 020000  R      LJMP   ?CASE12
+0040         ?LAB36:
+0040 5011           JNC    ?LAB35
+0042 E500    R      MOV    A,wind
+0044 14             DEC    A
+0045 601C           JZ     ?CASE8
+0047 14             DEC    A
+0048 603B           JZ     ?CASE9
+004A 14             DEC    A
+004B 606B           JZ     ?CASE10
+004D 14             DEC    A
+004E 6024           JZ     ?CASE11
+0050 020000  R      LJMP   ?DEFAULT1
+0053         ?LAB35:
+0053 E500    R      MOV    A,wind
+0055 24F8           ADD    A,#0F8H
+0057 603D           JZ     ?CASE13
+0059 14             DEC    A
+005A 604B           JZ     ?CASE14
+005C 24FD           ADD    A,#0FDH
+005E 6069           JZ     ?CASE15
+0060 020000  R      LJMP   ?NXT23
+0063         ?CASE8:
+                                           ; SOURCE LINE # 39 
+0063 7B01           MOV    R3,#001H
+0065 E4             CLR    A
+0066 FA             MOV    R2,A
+0067 7900    R      MOV    R1,#buf
+0069 7D05           MOV    R5,#005H
+006B 7C00    R      MOV    R4,#HIGH(?STR?WINDRICHTUNG?BASE + 00EH)
+006D 7800    R      MOV    R0,#LOW(?STR?WINDRICHTUNG?BASE + 00EH)
+006F 120000  R      LCALL  ?sprintf
+0072 8075           SJMP   ?NXT23
+0074         ?CASE11:
+                                           ; SOURCE LINE # 40 
+0074 7B01           MOV    R3,#001H
+0076 E4             CLR    A
+0077 FA             MOV    R2,A
+0078 7900    R      MOV    R1,#buf
+007A 7D05           MOV    R5,#005H
+007C 7C00    R      MOV    R4,#HIGH(?STR?WINDRICHTUNG?BASE + 013H)
+007E 7800    R      MOV    R0,#LOW(?STR?WINDRICHTUNG?BASE + 013H)
+0080 120000  R      LCALL  ?sprintf
+0083 8064           SJMP   ?NXT23
+0085         ?CASE9:
+                                           ; SOURCE LINE # 41 
+0085 7B01           MOV    R3,#001H
+0087 E4             CLR    A
+0088 FA             MOV    R2,A
+0089 7900    R      MOV    R1,#buf
+008B 7D05           MOV    R5,#005H
+008D 7C00    R      MOV    R4,#HIGH(?STR?WINDRICHTUNG?BASE + 018H)
+008F 7800    R      MOV    R0,#LOW(?STR?WINDRICHTUNG?BASE + 018H)
+0091 120000  R      LCALL  ?sprintf
+0094 8053           SJMP   ?NXT23
+0096         ?CASE13:
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE  8
+
+                                           ; SOURCE LINE # 42 
+0096 7B01           MOV    R3,#001H
+0098 E4             CLR    A
+0099 FA             MOV    R2,A
+009A 7900    R      MOV    R1,#buf
+009C 7D05           MOV    R5,#005H
+009E 7C00    R      MOV    R4,#HIGH(?STR?WINDRICHTUNG?BASE + 01CH)
+00A0 7800    R      MOV    R0,#LOW(?STR?WINDRICHTUNG?BASE + 01CH)
+00A2 120000  R      LCALL  ?sprintf
+00A5 8042           SJMP   ?NXT23
+00A7         ?CASE14:
+                                           ; SOURCE LINE # 43 
+00A7 7B01           MOV    R3,#001H
+00A9 E4             CLR    A
+00AA FA             MOV    R2,A
+00AB 7900    R      MOV    R1,#buf
+00AD 7D05           MOV    R5,#005H
+00AF 7C00    R      MOV    R4,#HIGH(?STR?WINDRICHTUNG?BASE + 021H)
+00B1 7800    R      MOV    R0,#LOW(?STR?WINDRICHTUNG?BASE + 021H)
+00B3 120000  R      LCALL  ?sprintf
+00B6 8031           SJMP   ?NXT23
+00B8         ?CASE10:
+                                           ; SOURCE LINE # 44 
+00B8 7B01           MOV    R3,#001H
+00BA E4             CLR    A
+00BB FA             MOV    R2,A
+00BC 7900    R      MOV    R1,#buf
+00BE 7D05           MOV    R5,#005H
+00C0 7C00    R      MOV    R4,#HIGH(?STR?WINDRICHTUNG?BASE + 02BH)
+00C2 7800    R      MOV    R0,#LOW(?STR?WINDRICHTUNG?BASE + 02BH)
+00C4 120000  R      LCALL  ?sprintf
+00C7 8020           SJMP   ?NXT23
+00C9         ?CASE15:
+                                           ; SOURCE LINE # 45 
+00C9 7B01           MOV    R3,#001H
+00CB E4             CLR    A
+00CC FA             MOV    R2,A
+00CD 7900    R      MOV    R1,#buf
+00CF 7D05           MOV    R5,#005H
+00D1 7C00    R      MOV    R4,#HIGH(?STR?WINDRICHTUNG?BASE + 034H)
+00D3 7800    R      MOV    R0,#LOW(?STR?WINDRICHTUNG?BASE + 034H)
+00D5 120000  R      LCALL  ?sprintf
+00D8 800F           SJMP   ?NXT23
+00DA         ?CASE12:
+                                           ; SOURCE LINE # 46 
+00DA 7B01           MOV    R3,#001H
+00DC E4             CLR    A
+00DD FA             MOV    R2,A
+00DE 7900    R      MOV    R1,#buf
+00E0 7D05           MOV    R5,#005H
+00E2 7C00    R      MOV    R4,#HIGH(?STR?WINDRICHTUNG?BASE + 03EH)
+00E4 7800    R      MOV    R0,#LOW(?STR?WINDRICHTUNG?BASE + 03EH)
+00E6 120000  R      LCALL  ?sprintf
+00E9         ?DEFAULT1:
+
+00E9         ?NXT23:
+                                           ; SOURCE LINE # 49 
+00E9 7B01           MOV    R3,#001H
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE  9
+
+00EB 7900    R      MOV    R1,#buf
+00ED E4             CLR    A
+00EE FA             MOV    R2,A
+00EF 7D02           MOV    R5,#002H
+00F1 120000  R      LCALL  _textlcd
+00F4 020000  R      LJMP   ?WHILE3
+
+            ; FUNCTION main (END)
+
+RC51 COMPILER V03.08.10.309,  WINDRICHTUNG       03/01/20  01:44:38  PAGE 11
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    532    ----
+   CONSTANT SIZE    =     71    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     22       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+RC51 COMPILATION COMPLETE.  0 WARNING,  0 ERROR

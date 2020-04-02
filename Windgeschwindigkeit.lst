@@ -1,0 +1,671 @@
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE  
+            -1
+
+QCW(0x00002F32)
+
+DOS RC51 COMPILER V03.08.10.309, COMPILATION OF MODULE WINDGESCHWINDIGKEIT
+OBJECT MODULE PLACED IN H:\Code\Windgeschwindigkeit.obj
+COMPILER INVOKED BY: QUIET GENERATEDEPFILE OJ(H:\Code\Windgeschwindigkeit.obj) P
+            -IN(C:\Raisonance\Ride\Inc;C:\Raisonance\Ride\Inc\51) PIN(C:\Raisona
+            -nce\Ride\\inc\51\SiLabs) NOAM CD PR(H:\Code\Windgeschwindigkeit.lst
+            -) FP(NOFLOAT) IP NOIS UNSIGNEDCHAR ET(CHAR) PR PL(60) PW(80) OE(1) 
+            -OT(7,SPEED) RB(0) MAXERR(25) MAXWAR(25) SM MOD517(NODP8,NOAU) 
+
+stmt level    source
+   1          /*
+   2          ;Name:      David Specht
+   3          ;Datum:     27.02.2020
+   4          ;Aufgabe:   Ermittlung der Windrichtung mit dem W132 von Ventus
+   5          ;Controller:C8051F340
+   6          */
+   7          
+   8          #include <stdio.h>									// für sprinf											
+   9          #include <C_8051F340.h>
+  10          #include <Einstellungen.h>
+  11          #include <lcd.c>
+  12          
+  13          unsigned char buf [20];
+  14          
+  15          unsigned int umdrehungen;
+  16          unsigned char timerUeberlaufe;
+  17          float geschwindigkeit;
+  18          unsigned char messzeit = 5;
+  19          
+  20          void ISR_EX0(void) interrupt 0 {
+  21   1          umdrehungen++;
+  22   1      }
+
+*** WARNING C233 IN LINE 22 OF H:\Code\Windgeschwindigkeit.c : using absolute r
+            -egisters together with interrupts can cause register corruptions (m
+            -ixup of register banks)
+  23          
+  24          void ISR_T0(void) interrupt 1 {
+  25   1          TR0 = 0;
+  26   1          timerUeberlaufe++;
+  27   1          TH0 = 0x3C;
+  28   1          TL0 = 0xB0;
+  29   1          if(timerUeberlaufe == (messzeit*20)){
+  30   2              timerUeberlaufe = 0;
+  31   2              geschwindigkeit = (0.40841 * (umdrehungen/messzeit)) * 3.6
+            -;
+  32   2              umdrehungen = 0;
+  33   2              geschwindigkeit = (int) (geschwindigkeit * 1000 + 5); //Na
+            -chkommastellen wegschneiden
+  34   2              geschwindigkeit = geschwindigkeit / 1000;
+  35   2              loeschenlcd(); 
+  36   2              sprintf(buf, "Geschwindigkeit:");
+  37   2              textlcd(buf,  1);
+  38   2              sprintf(buf, "%f km/h",geschwindigkeit);
+  39   2              textlcd(buf,  2);
+  40   2          }
+  41   1          TR0 = 1;
+  42   1      }
+  43          
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE  
+            -9
+
+  44          void init(void) {
+  45   1          EA = 1;
+  46   1          EX0 = 1;
+  47   1          ET0 = 1;
+  48   1          
+  49   1          IT0 = 1;
+  50   1          IT01CF = 0b00001100;
+  51   1      
+  52   1          TMOD = 0b00000001;
+  53   1      
+  54   1          TH0 = 0x3C;
+  55   1          TL0 = 0xB0;
+  56   1      
+  57   1          TR0 = 1;
+  58   1      }
+  59          
+  60          void main (void) {
+  61   1          Grundeinstellungen();	
+  62   1          initlcd ();						//	Initialisierung LCD-Display an P3
+  63   1       	loeschenlcd ();				    //	Anzeige löschen	
+  64   1          init();
+  65   1      
+  66   1          sprintf(buf, "Geschwindigkeit:");
+  67   1          textlcd(buf,  1);
+  68   1          sprintf(buf, "Messung laeuft...");
+  69   1          textlcd(buf,  2);
+  70   1      
+  71   1          while(1);
+  72   1      }
+  73          
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE 1
+            -2
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+            ; FUNCTION Grundeinstellungen (BEGIN)
+                                           ; SOURCE LINE # 9 
+0000 75B283         MOV    OSCICN,#083H
+                                           ; SOURCE LINE # 11 
+0003 75D900         MOV    PCA0MD,#000H
+                                           ; SOURCE LINE # 17 
+0006 75A4FF         MOV    P0MDOUT,#0FFH
+                                           ; SOURCE LINE # 18 
+0009 75A5FF         MOV    P1MDOUT,#0FFH
+                                           ; SOURCE LINE # 19 
+000C 75A6FF         MOV    P2MDOUT,#0FFH
+                                           ; SOURCE LINE # 20 
+000F 75A7FF         MOV    P3MDOUT,#0FFH
+                                           ; SOURCE LINE # 21 
+0012 75AEFF         MOV    P4MDOUT,#0FFH
+                                           ; SOURCE LINE # 24 
+0015 75E240         MOV    XBR1,#040H
+                                           ; SOURCE LINE # 10 
+0018 22             RET    
+
+            ; FUNCTION Grundeinstellungen (END)
+
+            ; FUNCTION _warte100u (BEGIN)
+              ; Register R6R7 is assigned to parameter anzahl
+              ; R2R3 is assigned to z1
+              ; R4R5 is assigned to z2
+                                           ; SOURCE LINE # 37 
+0000 8E04           MOV    AR4,R6
+0002 8F05           MOV    AR5,R7
+0004         ?FOR2:
+0004 EC             MOV    A,R4
+0005 4D             ORL    A,R5
+0006 6016           JZ     ?NXT4
+                                           ; SOURCE LINE # 39 
+0008 E4             CLR    A
+0009 FA             MOV    R2,A
+000A 7B03           MOV    R3,#003H
+000C         ?FOR3:
+000C EA             MOV    A,R2
+000D 4B             ORL    A,R3
+000E 6007           JZ     ?NXT5
+0010 EB             MOV    A,R3
+0011 1B             DEC    R3
+0012 70F8           JNZ    ?FOR3
+0014 1A             DEC    R2
+0015 80F5           SJMP   ?FOR3
+0017         ?NXT5:
+                                           ; SOURCE LINE # 37 
+0017 ED             MOV    A,R5
+0018 1D             DEC    R5
+0019 70E9           JNZ    ?FOR2
+001B 1C             DEC    R4
+001C 80E6           SJMP   ?FOR2
+001E         ?NXT4:
+                                           ; SOURCE LINE # 41 
+001E 22             RET    
+
+            ; FUNCTION _warte100u (END)
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE  
+            -2
+
+
+            ; FUNCTION _LCDbefehl (BEGIN)
+              ; Register R7 is assigned to parameter befehl
+              ; R6 is assigned to a1
+                                           ; SOURCE LINE # 51 
+0000 75F004         MOV    B,#004H
+0003 EF             MOV    A,R7
+0004         ?LAB10:
+0004 23             RL     A
+0005 D5F0FC         DJNZ   B,?LAB10
+                                           ; SOURCE LINE # 52 
+0008 540F           ANL    A,#00FH
+000A 4410           ORL    A,#010H
+                                           ; SOURCE LINE # 53 
+000C F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 54 
+000E E4             CLR    A
+000F F5B0           MOV    P3,A
+              ; R6 is assigned to a1
+                                           ; SOURCE LINE # 56 
+0011 EF             MOV    A,R7
+0012 540F           ANL    A,#00FH
+0014 4410           ORL    A,#010H
+                                           ; SOURCE LINE # 57 
+0016 F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 58 
+0018 E4             CLR    A
+0019 F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 61 
+001B FE             MOV    R6,A
+001C 7FC8           MOV    R7,#0C8H
+001E 020000  R      LJMP   _warte100u
+
+            ; FUNCTION _LCDbefehl (END)
+
+            ; FUNCTION initlcd (BEGIN)
+                                           ; SOURCE LINE # 99 
+0000 75B013         MOV    P3,#013H
+                                           ; SOURCE LINE # 100 
+0003 75B003         MOV    P3,#003H
+                                           ; SOURCE LINE # 101 
+0006 E4             CLR    A
+0007 FE             MOV    R6,A
+0008 7FC8           MOV    R7,#0C8H
+000A 120000  R      LCALL  _warte100u
+                                           ; SOURCE LINE # 102 
+000D 75B013         MOV    P3,#013H
+                                           ; SOURCE LINE # 103 
+0010 75B003         MOV    P3,#003H
+                                           ; SOURCE LINE # 104 
+0013 120000  R      LCALL  _warte100u
+                                           ; SOURCE LINE # 105 
+0016 75B013         MOV    P3,#013H
+                                           ; SOURCE LINE # 106 
+0019 75B003         MOV    P3,#003H
+                                           ; SOURCE LINE # 107 
+001C 120000  R      LCALL  _warte100u
+                                           ; SOURCE LINE # 108 
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE  
+            -3
+
+001F 75B012         MOV    P3,#012H
+                                           ; SOURCE LINE # 109 
+0022 75B002         MOV    P3,#002H
+                                           ; SOURCE LINE # 110 
+0025 120000  R      LCALL  _warte100u
+                                           ; SOURCE LINE # 111 
+0028 7F28           MOV    R7,#028H
+002A 120000  R      LCALL  _LCDbefehl
+                                           ; SOURCE LINE # 112 
+002D 7F0C           MOV    R7,#00CH
+002F 120000  R      LCALL  _LCDbefehl
+                                           ; SOURCE LINE # 113 
+0032 7F06           MOV    R7,#006H
+0034 020000  R      LJMP   _LCDbefehl
+
+            ; FUNCTION initlcd (END)
+
+            ; FUNCTION loeschenlcd (BEGIN)
+                                           ; SOURCE LINE # 120 
+0000 7F01           MOV    R7,#001H
+0002 020000  R      LJMP   _LCDbefehl
+
+            ; FUNCTION loeschenlcd (END)
+
+            ; FUNCTION _charlcd (BEGIN)
+              ; Register R7 is assigned to parameter zeichen
+              ; R6 is assigned to a1
+                                           ; SOURCE LINE # 131 
+0000 75F004         MOV    B,#004H
+0003 EF             MOV    A,R7
+0004         ?LAB18:
+0004 23             RL     A
+0005 D5F0FC         DJNZ   B,?LAB18
+                                           ; SOURCE LINE # 133 
+0008 540F           ANL    A,#00FH
+000A 4490           ORL    A,#090H
+                                           ; SOURCE LINE # 134 
+000C F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 135 
+000E 5480           ANL    A,#080H
+0010 F5B0           MOV    P3,A
+              ; R6 is assigned to a1
+                                           ; SOURCE LINE # 137 
+0012 EF             MOV    A,R7
+0013 540F           ANL    A,#00FH
+0015 4490           ORL    A,#090H
+                                           ; SOURCE LINE # 138 
+0017 F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 139 
+0019 5480           ANL    A,#080H
+001B F5B0           MOV    P3,A
+                                           ; SOURCE LINE # 142 
+001D 7E00           MOV    R6,#000H
+001F 7FC8           MOV    R7,#0C8H
+0021 020000  R      LJMP   _warte100u
+
+            ; FUNCTION _charlcd (END)
+
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE  
+            -4
+
+            ; FUNCTION _cursorpos (BEGIN)
+              ; Register R7 is assigned to parameter position
+                                           ; SOURCE LINE # 167 
+0000 EF             MOV    A,R7
+0001 4480           ORL    A,#080H
+0003 FF             MOV    R7,A
+0004 020000  R      LJMP   _LCDbefehl
+
+            ; FUNCTION _cursorpos (END)
+
+            ; FUNCTION cursorhome (BEGIN)
+                                           ; SOURCE LINE # 173 
+0000 7F02           MOV    R7,#002H
+0002 020000  R      LJMP   _LCDbefehl
+
+            ; FUNCTION cursorhome (END)
+
+            ; FUNCTION _textlcd (BEGIN)
+                                           ; SOURCE LINE # 178 
+0000 8B00    R      MOV    text,R3
+0002 8A00    R      MOV    text+01H,R2
+0004 8900    R      MOV    text+02H,R1
+0006 8D00    R      MOV    zeile,R5
+                                           ; SOURCE LINE # 180 
+0008 BD0105         CJNE   R5,#001H,?NXT13
+000B E4             CLR    A
+000C FF             MOV    R7,A
+000D 120000  R      LCALL  _cursorpos
+0010         ?NXT13:
+                                           ; SOURCE LINE # 181 
+0010 E500    R      MOV    A,zeile
+0012 B40205         CJNE   A,#002H,?NXT14
+0015 7F40           MOV    R7,#040H
+0017 120000  R      LCALL  _cursorpos
+001A         ?NXT14:
+                                           ; SOURCE LINE # 182 
+001A E500    R      MOV    A,zeile
+001C B40305         CJNE   A,#003H,?NXT15
+001F 7F10           MOV    R7,#010H
+0021 120000  R      LCALL  _cursorpos
+0024         ?NXT15:
+                                           ; SOURCE LINE # 183 
+0024 E500    R      MOV    A,zeile
+0026 B40405         CJNE   A,#004H,?WHILE1
+0029 7F50           MOV    R7,#050H
+002B 120000  R      LCALL  _cursorpos
+002E         ?WHILE1:
+                                           ; SOURCE LINE # 184 
+002E AB00    R      MOV    R3,text
+0030 AA00    R      MOV    R2,text+01H
+0032 A900    R      MOV    R1,text+02H
+0034 120000  R      LCALL  IPGN1?C
+0037 601E           JZ     ?NXT17
+                                           ; SOURCE LINE # 186 
+0039 AB00    R      MOV    R3,text
+003B AA00    R      MOV    R2,text+01H
+003D A900    R      MOV    R1,text+02H
+003F 0500    R      INC    text+02H
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE  
+            -5
+
+0041 E500    R      MOV    A,text+02H
+0043 7002           JNZ    ?LAB26
+0045 0500    R      INC    text+01H
+0047         ?LAB26:
+0047 120000  R      LCALL  IPGN1?C
+004A FF             MOV    R7,A
+004B 120000  R      LCALL  _charlcd
+                                           ; SOURCE LINE # 187 
+004E E4             CLR    A
+004F FE             MOV    R6,A
+0050 7FC8           MOV    R7,#0C8H
+0052 120000  R      LCALL  _warte100u
+0055 80D7           SJMP   ?WHILE1
+0057         ?NXT17:
+                                           ; SOURCE LINE # 190 
+0057 22             RET    
+
+            ; FUNCTION _textlcd (END)
+
+            ; FUNCTION ISR_EX0 (BEGIN)
+                                           ; SOURCE LINE # 20 
+0000 C0E0           PUSH   ACC
+0002 C0D0           PUSH   PSW
+                                           ; SOURCE LINE # 21 
+0004 0500    R      INC    umdrehungen+01H
+0006 E500    R      MOV    A,umdrehungen+01H
+0008 7002           JNZ    ?NXT19
+000A 0500    R      INC    umdrehungen
+000C         ?NXT19:
+000C D0D0           POP    PSW
+000E D0E0           POP    ACC
+                                           ; SOURCE LINE # 22 
+0010 32             RETI   
+
+            ; FUNCTION ISR_EX0 (END)
+
+            ; FUNCTION ISR_T0 (BEGIN)
+                                           ; SOURCE LINE # 24 
+0000 C0E0           PUSH   ACC
+0002 C0F0           PUSH   B
+0004 C083           PUSH   DPH
+0006 C082           PUSH   DPL
+0008 C0D0           PUSH   PSW
+000A C000           PUSH   AR0
+000C C001           PUSH   AR1
+000E C002           PUSH   AR2
+0010 C003           PUSH   AR3
+0012 C004           PUSH   AR4
+0014 C005           PUSH   AR5
+0016 C006           PUSH   AR6
+0018 C007           PUSH   AR7
+                                           ; SOURCE LINE # 25 
+001A C28C           CLR    TR0
+                                           ; SOURCE LINE # 26 
+001C 0500    R      INC    timerUeberlaufe
+                                           ; SOURCE LINE # 27 
+001E 758C3C         MOV    TH0,#03CH
+                                           ; SOURCE LINE # 28 
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE  
+            -6
+
+0021 758AB0         MOV    TL0,#0B0H
+                                           ; SOURCE LINE # 29 
+0024 75F014         MOV    B,#014H
+0027 E500    R      MOV    A,messzeit
+0029 A4             MUL    AB
+002A FB             MOV    R3,A
+002B E4             CLR    A
+002C B5F002         CJNE   A,B,$ + 5
+002F 8003           SJMP   $ + 5
+0031 020000  R      LJMP   ?NXT23
+0034 E500    R      MOV    A,timerUeberlaufe
+0036 B50302         CJNE   A,AR3,$ + 5
+0039 8003           SJMP   $ + 5
+003B 020000  R      LJMP   ?NXT23
+                                           ; SOURCE LINE # 30 
+003E E4             CLR    A
+003F F500    R      MOV    timerUeberlaufe,A
+                                           ; SOURCE LINE # 31 
+0041 AE00    R      MOV    R6,umdrehungen
+0043 AF00    R      MOV    R7,umdrehungen+01H
+0045 FC             MOV    R4,A
+0046 AD00    R      MOV    R5,messzeit
+0048 120000  R      LCALL  ?C_UIDIV
+004B E4             CLR    A
+004C FC             MOV    R4,A
+004D FD             MOV    R5,A
+004E 120000  R      LCALL  ?CV_LU_IEEE
+0051 C004           PUSH   AR4
+0053 C005           PUSH   AR5
+0055 C006           PUSH   AR6
+0057 C007           PUSH   AR7
+0059 7C1E           MOV    R4,#01EH
+005B 7D1B           MOV    R5,#01BH
+005D 7ED1           MOV    R6,#0D1H
+005F 7F3E           MOV    R7,#03EH
+0061 120000  R      LCALL  ?MULTIEEE
+0064 C004           PUSH   AR4
+0066 C005           PUSH   AR5
+0068 C006           PUSH   AR6
+006A C007           PUSH   AR7
+006C 7466           MOV    A,#066H
+006E FE             MOV    R6,A
+006F FC             MOV    R4,A
+0070 FD             MOV    R5,A
+0071 7F40           MOV    R7,#040H
+0073 120000  R      LCALL  ?MULTIEEE
+0076 8C00    R      MOV    geschwindigkeit,R4
+0078 8D00    R      MOV    geschwindigkeit+01H,R5
+007A 8E00    R      MOV    geschwindigkeit+02H,R6
+007C 8F00    R      MOV    geschwindigkeit+03H,R7
+                                           ; SOURCE LINE # 32 
+007E E4             CLR    A
+                                           ; SOURCE LINE # 33 
+007F FD             MOV    R5,A
+0080 FC             MOV    R4,A
+                                           ; SOURCE LINE # 32 
+0081 F500    R      MOV    umdrehungen,A
+0083 F500    R      MOV    umdrehungen+01H,A
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE  
+            -7
+
+                                           ; SOURCE LINE # 33 
+0085 C000    R      PUSH   geschwindigkeit
+0087 C000    R      PUSH   geschwindigkeit+01H
+0089 C000    R      PUSH   geschwindigkeit+02H
+008B C000    R      PUSH   geschwindigkeit+03H
+008D 7E7A           MOV    R6,#07AH
+008F 7F44           MOV    R7,#044H
+0091 120000  R      LCALL  ?MULTIEEE
+0094 C004           PUSH   AR4
+0096 C005           PUSH   AR5
+0098 C006           PUSH   AR6
+009A C007           PUSH   AR7
+009C E4             CLR    A
+009D FC             MOV    R4,A
+009E FD             MOV    R5,A
+009F 7EA0           MOV    R6,#0A0H
+00A1 7F40           MOV    R7,#040H
+00A3 120000  R      LCALL  ?ADDIEEE
+00A6 120000  R      LCALL  ?CV_IEEE_LS
+00A9 EE             MOV    A,R6
+00AA 33             RLC    A
+00AB E4             CLR    A
+00AC 5001           JNC    ?NXT24
+00AE 14             DEC    A
+00AF         ?NXT24:
+00AF FD             MOV    R5,A
+00B0 FC             MOV    R4,A
+00B1 120000  R      LCALL  ?CV_LS_IEEE
+00B4 8C00    R      MOV    geschwindigkeit,R4
+00B6 8D00    R      MOV    geschwindigkeit+01H,R5
+00B8 8E00    R      MOV    geschwindigkeit+02H,R6
+00BA 8F00    R      MOV    geschwindigkeit+03H,R7
+                                           ; SOURCE LINE # 34 
+00BC C000    R      PUSH   geschwindigkeit
+00BE C000    R      PUSH   geschwindigkeit+01H
+00C0 C000    R      PUSH   geschwindigkeit+02H
+00C2 C000    R      PUSH   geschwindigkeit+03H
+00C4 7C6F           MOV    R4,#06FH
+00C6 7D12           MOV    R5,#012H
+00C8 7E83           MOV    R6,#083H
+00CA 7F3A           MOV    R7,#03AH
+00CC 120000  R      LCALL  ?MULTIEEE
+00CF 8C00    R      MOV    geschwindigkeit,R4
+00D1 8D00    R      MOV    geschwindigkeit+01H,R5
+00D3 8E00    R      MOV    geschwindigkeit+02H,R6
+00D5 8F00    R      MOV    geschwindigkeit+03H,R7
+                                           ; SOURCE LINE # 35 
+00D7 120000  R      LCALL  loeschenlcd
+                                           ; SOURCE LINE # 36 
+00DA 7B01           MOV    R3,#001H
+00DC 7900    R      MOV    R1,#buf
+00DE E4             CLR    A
+00DF FA             MOV    R2,A
+00E0 7D05           MOV    R5,#005H
+00E2 7C00    R      MOV    R4,#HIGH(?STR?WINDGESCHWINDIGKEIT?BASE)
+00E4 7800    R      MOV    R0,#LOW(?STR?WINDGESCHWINDIGKEIT?BASE)
+00E6 120000  R      LCALL  ?sprintf
+                                           ; SOURCE LINE # 37 
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE  
+            -8
+
+00E9 7B01           MOV    R3,#001H
+00EB 7900    R      MOV    R1,#buf
+00ED E4             CLR    A
+00EE FA             MOV    R2,A
+00EF 7D01           MOV    R5,#001H
+00F1 120000  R      LCALL  _textlcd
+                                           ; SOURCE LINE # 38 
+00F4 C000    R      PUSH   geschwindigkeit
+00F6 C000    R      PUSH   geschwindigkeit+01H
+00F8 C000    R      PUSH   geschwindigkeit+02H
+00FA C000    R      PUSH   geschwindigkeit+03H
+00FC 7B01           MOV    R3,#001H
+00FE 7900    R      MOV    R1,#buf
+0100 E4             CLR    A
+0101 FA             MOV    R2,A
+0102 7D05           MOV    R5,#005H
+0104 7C00    R      MOV    R4,#HIGH(?STR?WINDGESCHWINDIGKEIT?BASE + 011H)
+0106 7800    R      MOV    R0,#LOW(?STR?WINDGESCHWINDIGKEIT?BASE + 011H)
+0108 120000  R      LCALL  ?sprintf
+010B 74FC           MOV    A,#0FCH
+010D 2581           ADD    A,SP
+010F F581           MOV    SP,A
+                                           ; SOURCE LINE # 39 
+0111 7B01           MOV    R3,#001H
+0113 7900    R      MOV    R1,#buf
+0115 E4             CLR    A
+0116 FA             MOV    R2,A
+0117 7D02           MOV    R5,#002H
+0119 120000  R      LCALL  _textlcd
+011C         ?NXT23:
+                                           ; SOURCE LINE # 41 
+011C D28C           SETB   TR0
+011E D007           POP    AR7
+0120 D006           POP    AR6
+0122 D005           POP    AR5
+0124 D004           POP    AR4
+0126 D003           POP    AR3
+0128 D002           POP    AR2
+012A D001           POP    AR1
+012C D000           POP    AR0
+012E D0D0           POP    PSW
+0130 D082           POP    DPL
+0132 D083           POP    DPH
+0134 D0F0           POP    B
+0136 D0E0           POP    ACC
+                                           ; SOURCE LINE # 42 
+0138 32             RETI   
+
+            ; FUNCTION ISR_T0 (END)
+
+            ; FUNCTION init (BEGIN)
+                                           ; SOURCE LINE # 45 
+0000 D2AF           SETB   EA
+                                           ; SOURCE LINE # 46 
+0002 D2A8           SETB   EX0
+                                           ; SOURCE LINE # 47 
+0004 D2A9           SETB   ET0
+                                           ; SOURCE LINE # 49 
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE 1
+            -0
+
+0006 D288           SETB   IT0
+                                           ; SOURCE LINE # 50 
+0008 75E40C         MOV    IT01CF,#00CH
+                                           ; SOURCE LINE # 52 
+000B 758901         MOV    TMOD,#001H
+                                           ; SOURCE LINE # 54 
+000E 758C3C         MOV    TH0,#03CH
+                                           ; SOURCE LINE # 55 
+0011 758AB0         MOV    TL0,#0B0H
+                                           ; SOURCE LINE # 57 
+0014 D28C           SETB   TR0
+                                           ; SOURCE LINE # 58 
+0016 22             RET    
+
+            ; FUNCTION init (END)
+
+            ; FUNCTION main (BEGIN)
+                                           ; SOURCE LINE # 61 
+0000 120000  R      LCALL  Grundeinstellungen
+                                           ; SOURCE LINE # 62 
+0003 120000  R      LCALL  initlcd
+                                           ; SOURCE LINE # 63 
+0006 120000  R      LCALL  loeschenlcd
+                                           ; SOURCE LINE # 64 
+0009 120000  R      LCALL  init
+                                           ; SOURCE LINE # 66 
+000C 7B01           MOV    R3,#001H
+000E 7900    R      MOV    R1,#buf
+0010 E4             CLR    A
+0011 FA             MOV    R2,A
+0012 7D05           MOV    R5,#005H
+0014 7C00    R      MOV    R4,#HIGH(?STR?WINDGESCHWINDIGKEIT?BASE)
+0016 7800    R      MOV    R0,#LOW(?STR?WINDGESCHWINDIGKEIT?BASE)
+0018 120000  R      LCALL  ?sprintf
+                                           ; SOURCE LINE # 67 
+001B 7B01           MOV    R3,#001H
+001D 7900    R      MOV    R1,#buf
+001F E4             CLR    A
+0020 FA             MOV    R2,A
+0021 7D01           MOV    R5,#001H
+0023 120000  R      LCALL  _textlcd
+                                           ; SOURCE LINE # 68 
+0026 7B01           MOV    R3,#001H
+0028 7900    R      MOV    R1,#buf
+002A E4             CLR    A
+002B FA             MOV    R2,A
+002C 7D05           MOV    R5,#005H
+002E 7C00    R      MOV    R4,#HIGH(?STR?WINDGESCHWINDIGKEIT?BASE + 019H)
+0030 7800    R      MOV    R0,#LOW(?STR?WINDGESCHWINDIGKEIT?BASE + 019H)
+0032 120000  R      LCALL  ?sprintf
+                                           ; SOURCE LINE # 69 
+0035 7B01           MOV    R3,#001H
+0037 7900    R      MOV    R1,#buf
+0039 E4             CLR    A
+003A FA             MOV    R2,A
+003B 7D02           MOV    R5,#002H
+003D 120000  R      LCALL  _textlcd
+0040         ?WHILE3:
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:58  PAGE 1
+            -1
+
+                                           ; SOURCE LINE # 71 
+0040 80FE           SJMP   ?WHILE3
+
+            ; FUNCTION main (END)
+
+RC51 COMPILER V03.08.10.309,  WINDGESCHWINDIGKEIT    03/08/20  20:39:59  PAGE 1
+            -3
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    704    ----
+   CONSTANT SIZE    =     43    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     29       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+RC51 COMPILATION COMPLETE.  1 WARNING,  0 ERROR
