@@ -8,6 +8,8 @@
 // Bsp.: MT = Master Transmit
 //-------------------------------------------------
 
+#include <C_8051F340.h>
+
 #define TIMER0  0b00;
 #define TIMER1  0b01;
 #define TIMER2H 0b10;
