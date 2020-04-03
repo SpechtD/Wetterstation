@@ -9,3 +9,6 @@
 *.dbi
 *.M51
 *.xdb
+BuildLog.html
+*.XML
+*.XRF

@@ -1,5 +1,5 @@
 //--------------------------------------------------
-// Abk√ºrzungen:
+// Abk¸rzungen:
 // M = Master
 // S = Slave
 // T = Transmit
@@ -8,8 +8,6 @@
 // Bsp.: MT = Master Transmit
 //-------------------------------------------------
 
-#include <C_8051F340.h>
-
 #define TIMER0  0b00;
 #define TIMER1  0b01;
 #define TIMER2H 0b10;
@@ -17,53 +15,36 @@
 
 // Status Vektoren - Nur die oberen 4 Bits
 #define SMB_MTSTA   0xE0;           // (MT) START gesendet
-#define SMB_MTDB    0xC0;           // (MT) Datenbyte √ºbertragen
+#define SMB_MTDB    0xC0;           // (MT) Datenbyte ‹bertragen
 #define SMB_MRDB    0x80;           // (MR) Datenbyte empfangen
-#define SMB_STDB    0x40;           // (ST) Datenbyte √ºbertragen
-#define SMB_STER    0x50;           // (ST) STOP Empfangen w√§hred √ºbertragung
+#define SMB_STDB    0x40;           // (ST) Datenbyte ‹bertragen
+#define SMB_STER    0x50;           // (ST) STOP Empfangen w‰hred ‹bertragung
 #define SMB_SRAR    0x20;           // (SR) ACK Angefragt
 #define SMB_SRLA    0x20;           // (SR) Verbindung verloren
-#define SMB_SRSTO   0x10;           // (SR) Verbindung gestrennt w√§hrend einem STOP
-#define SMB_SRDB    0x00;           // (SR) Datenbyte empfangen / Verbindung verlohren beim √úbertragen
-
-
-typedef struct settings_t {
-    char SMBEnable      : 1;
-    char SMBSlaveInhibit: 1;
-    char SMBExtHold     : 1;
-    char SMBSCLTimeout  : 1;
-    char SMBFreeTimeout : 1;
-    char SMBClockSource : 2;
-} settings;
+#define SMB_SRSTO   0x10;           // (SR) Verbindung gestrennt w‰hrend einem STOP
+#define SMB_SRDB    0x00;           // (SR) Datenbyte empfangen / Verbindung verloren beim ‹bertragen
 
 unsigned char buffer[20];
 unsigned char adrbuffer;
 
-void I2Csettings(struct settings_t *settings) {
-    SMB0CF = &settings;
-
-    if (settings.SMBSCLTimeout){
-
-    }
-}
-
+// SMBus Interrupt
 void ISR_SMB0(void) interrupt 7 {
 
     if (SMB0CN & 0xF0 == SMB_MTSTA) {
         SMB0DAT = adrbuffer;
         STA = 0;
     }
-
-
 }
 
-boolean sendData(unsigned char adress, unsigned char data[]){
+void initI2C() {
+    
+}
+
+void sendData(unsigned char adress, unsigned char data[]){
 
     STA = 1;
 
     adrbuffer = adress << 1 & 11111110;
 
     Strncpy(buffer, data, sizeof(buffer));
-
-    return 1;
 }
