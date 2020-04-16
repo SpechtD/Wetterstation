@@ -43,7 +43,7 @@ void ISR_SMB0(void) interrupt 7 {
         case SMB_MTDB:
             SI = 0;
             P1_2 = 1;
-            SMB0DAT = buffer[index];
+            SMB0DAT = 150;
             index++;
             if(index == 20) STO = 1;
     }
@@ -58,8 +58,8 @@ void initI2C() {
     EA = 1;
 
     TMOD = 0b00100000;
-    TH1 = 150;
-    TL1 = 150;  //251
+    TH1 = 251;
+    TL1 = 251;  //251
     TR1 = 1;
     SMB0CF = 0b10000001;
 }
