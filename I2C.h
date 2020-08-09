@@ -26,26 +26,60 @@
 
 unsigned char buffer[20];
 unsigned char adrbuffer;
+char i;
+int bufferlength;
+bit busy;
+bit repeatedStart;
 int index;
+
 
 // SMBus Interrupt
 void ISR_SMB0(void) interrupt 7 {
     
     switch(SMB0CN & 0xF0) {
         case SMB_MTSTA:
-            SI = 0;
             SMB0DAT = adrbuffer;
+            SI = 0;
             P1_2 = 0;
             STA = 0;
             index = 0;
             break;
         
         case SMB_MTDB:
+            if(index == bufferlength || !ACK) {
+                if(repeatedStart) {
+                    busy = 0;
+                    SI = 0;
+                    break;
+                }
+                STO = 1;
+                SI = 0;
+                busy = 0;
+                break;
+            }
+            SMB0DAT = buffer[index];
             SI = 0;
             P1_2 = 1;
-            SMB0DAT = 150;
             index++;
-            if(index == 20) STO = 1;
+            break;
+        
+        case SMB_MRDB:
+            if(ACKRQ) {
+                buffer[index] = SMB0DAT;
+                index++;
+                if(index == bufferlength) {
+                    ACK = 0;
+                    STO = 1;
+                    //SI = 0;
+                    busy = 0;
+                    break;
+                }
+                ACK = 1;
+                //SI = 0;
+                P1_2 = 1;
+            }
+            break;
+            
     }
 }
 
@@ -61,15 +95,43 @@ void initI2C() {
     TH1 = 251;
     TL1 = 251;  //251
     TR1 = 1;
-    SMB0CF = 0b10000001;
+    SMB0CF = 0b10010001;
 }
 
-void transmitData(char adress, char *content){
-
+void i2c_write(char adress, char *content, char length){
+    busy = 1;
     adrbuffer = adress <<1;
-    
-    //adrbuffer += 1;
-    strncpy(buffer, content, 20);
+    bufferlength = length;
+    strncpy(buffer, content, bufferlength);
 
     STA = 1;
+
+    while(busy) continue;
+}
+
+void i2c_read(char adress, char length, char* dest) {
+    busy = 1;
+    adrbuffer = (adress <<1) + 1;
+    bufferlength = length;
+
+    STA = 1;
+
+    while(busy) continue;
+    
+    for(i = 0; i > length; i++) {
+        dest[i] = buffer[i];
+    }
+}
+
+void i2c_write_read(char adress, char *content, char length0, char length1, char* dest) {
+    busy = 1;
+    adrbuffer = adress <<1;
+    bufferlength = length0;
+    strncpy(buffer, content, bufferlength);
+
+    STA = 1;
+
+    while(busy) continue;
+
+    i2c_read(adress, length1, dest);
 }

@@ -1,0 +1,2 @@
+"C:\SiLabs\MCU\Utilities\FLASH Programming\Static Programmers\Command-Line\FlashUtilCL.exe" FLASHEraseUSB "" 1
+"C:\SiLabs\MCU\Utilities\FLASH Programming\Static Programmers\Command-Line\FlashUtilCL.exe" DownloadUSB -R "Wetterstation.HEX" "" 0 1EX" "" 0 1

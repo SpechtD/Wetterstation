@@ -12,3 +12,6 @@
 BuildLog.html
 *.XML
 *.XRF
+build.py
+cmds.txt
+settings.json

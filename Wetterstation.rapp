@@ -1,6 +1,6 @@
 
-<ApplicationBuild Header="Wetterstation" Extern=".\Wetterstation.rapp" Path=".\Wetterstation.rapp" OutputFile=".\Wetterstation.aof" sate="96" >
-	<NodeC Path=".\Test_I2C.c" Header="Test_I2C.c" Marker="-1" OutputFile=".\Test_I2C.obj" sate="2" Marker5="" />
+<ApplicationBuild Header="Wetterstation" Extern=".\Wetterstation.rapp" Path=".\Wetterstation.rapp" OutputFile=".\Wetterstation.aof" sate="98" >
+	<NodeC Path=".\Test_I2C.c" Header="Test_I2C.c" Marker="-1" OutputFile=".\Test_I2C.obj" sate="0" Marker5="" />
 	<Options>
 		<Config Header="Standard" >
 			<Set Header="ApplicationBuild" >
